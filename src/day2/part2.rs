@@ -44,6 +44,18 @@ fn parse_input(input: &str) -> Vec<Game> {
         .collect()
 }
 
+fn compute_max_counts(games: &[Game]) -> (u32, u32, u32) {
+    let (max_red, max_green, max_blue) = games.iter().fold((0, 0, 0), |acc, game| {
+        (
+            acc.0.max(game.red),
+            acc.1.max(game.green),
+            acc.2.max(game.blue),
+        )
+    });
+
+    (max_red, max_green, max_blue)
+}
+
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Red: {}, Green: {}, Blue: {}", self.red, self.green, self.blue)
@@ -56,21 +68,13 @@ fn main() {
 
     match read_file_lines(file_path) {
         Ok(lines) => {
-            let mut sum = 0;
-            for (index, line) in lines.iter().enumerate() {
+            let mut res = 0;
+            for line in lines {
                 let games = parse_input(&line);
-                let mut valid = true;
-                for game in games {
-                  if game.red > 12 || game.green > 13 || game.blue > 14 {
-                    valid = false;
-                    break;
-                  }
-                }
-                if valid {
-                    sum += index + 1;
-                }
+                let max_vals = compute_max_counts(&games);
+                res += max_vals.0 * max_vals.1 * max_vals.2;
             }
-            println!("Sum: {}", sum);
+            println!("Sum: {}", res);
             
         }
         Err(err) => eprintln!("Error reading file: {}", err),
